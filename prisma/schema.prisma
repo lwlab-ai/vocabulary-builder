@@ -10,9 +10,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Placeholder model — full schema will be defined in a later task
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  createdAt DateTime @default(now())
+  id               String         @id @default(cuid())
+  email            String         @unique
+  passwordHash     String
+  notificationPref String         @default("OFF")
+  pushSubscription String?
+  createdAt        DateTime       @default(now())
+  userCategories   UserCategory[]
+  userWords        UserWord[]
+}
+
+model Category {
+  id             Int            @id @default(autoincrement())
+  name           String         @unique
+  slug           String         @unique
+  userCategories UserCategory[]
+  words          Word[]
+}
+
+model UserCategory {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  categoryId Int
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([userId, categoryId])
+}
+
+model Word {
+  id            Int        @id @default(autoincrement())
+  categoryId    Int
+  word          String
+  definition    String
+  pronunciation String
+  exampleUsage  String
+  createdAt     DateTime   @default(now())
+  category      Category   @relation(fields: [categoryId], references: [id])
+  userWords     UserWord[]
+
+  @@unique([categoryId, word])
+}
+
+model UserWord {
+  id     Int       @id @default(autoincrement())
+  userId String
+  wordId Int
+  seen   Boolean   @default(false)
+  seenAt DateTime?
+  user   User      @relation(fields: [userId], references: [id])
+  word   Word      @relation(fields: [wordId], references: [id])
+
+  @@unique([userId, wordId])
 }
