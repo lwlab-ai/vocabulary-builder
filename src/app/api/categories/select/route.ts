@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { ensureWordsForUser } from "@/lib/wordGenerator"
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -36,14 +37,10 @@ export async function POST(req: NextRequest) {
 
     await prisma.userCategory.create({ data: { userId, categoryId } })
 
-    // Create UserWord records for all existing words in this category
-    const words = await prisma.word.findMany({ where: { categoryId } })
-    if (words.length > 0) {
-      await prisma.userWord.createMany({
-        data: words.map((w) => ({ userId, wordId: w.id })),
-        skipDuplicates: true,
-      })
-    }
+    // Fire-and-forget: ensure words exist for this category and user
+    ensureWordsForUser(userId, categoryId).catch((err) =>
+      console.error("ensureWordsForUser failed:", err)
+    )
 
     return NextResponse.json({ id: categoryId, selected: true })
   } catch {
