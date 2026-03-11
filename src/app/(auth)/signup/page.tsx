@@ -53,7 +53,7 @@ export default function SignupPage() {
       setError("Account created but sign-in failed. Please log in.")
       router.push("/login")
     } else {
-      router.push("/dashboard")
+      router.push("/categories")
     }
   }
 
