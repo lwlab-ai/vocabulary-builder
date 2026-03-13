@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma"
 import { generateWords } from "@/lib/claude"
 
-export async function generateWordsForCategory(categoryId: number): Promise<void> {
+async function generateWordsForCategory(categoryId: number): Promise<void> {
   const category = await prisma.category.findUnique({ where: { id: categoryId } })
   if (!category) throw new Error(`Category ${categoryId} not found`)
 
-  const existingWords = await prisma.word.findMany({ where: { categoryId } })
+  const existingWords = await prisma.word.findMany({ where: { categoryId }, select: { word: true } })
   const existingWordStrings = existingWords.map((w) => w.word)
 
   const generated = await generateWords(category.name, existingWordStrings)
@@ -20,6 +20,25 @@ export async function generateWordsForCategory(categoryId: number): Promise<void
     })),
     skipDuplicates: true,
   })
+}
+
+/**
+ * Pre-generates a large pool of words for a category.
+ * Run this via `scripts/seed-words.ts` to populate the pool ahead of time.
+ */
+export async function preGenerateWordsForCategory(
+  categoryId: number,
+  targetCount = 100
+): Promise<void> {
+  const existing = await prisma.word.count({ where: { categoryId } })
+  const needed = targetCount - existing
+  if (needed <= 0) return
+
+  const batchSize = 20
+  const batches = Math.ceil(needed / batchSize)
+  for (let i = 0; i < batches; i++) {
+    await generateWordsForCategory(categoryId)
+  }
 }
 
 export async function ensureWordsForUser(userId: string, categoryId: number): Promise<void> {
@@ -46,14 +65,35 @@ export async function checkAndReplenishWords(userId: string): Promise<void> {
     })
 
     if (unseenCount < 5) {
-      await generateWordsForCategory(uc.categoryId)
+      // First, link any pool words not yet assigned to this user (no Claude call needed)
+      const unlinkedWords = await prisma.word.findMany({
+        where: {
+          categoryId: uc.categoryId,
+          userWords: { none: { userId } },
+        },
+      })
 
-      const allWords = await prisma.word.findMany({ where: { categoryId: uc.categoryId } })
-      if (allWords.length > 0) {
+      if (unlinkedWords.length > 0) {
         await prisma.userWord.createMany({
-          data: allWords.map((w) => ({ userId, wordId: w.id })),
+          data: unlinkedWords.map((w) => ({ userId, wordId: w.id })),
           skipDuplicates: true,
         })
+      } else {
+        // Pool exhausted – generate on the fly as a fallback
+        await generateWordsForCategory(uc.categoryId)
+
+        const newWords = await prisma.word.findMany({
+          where: {
+            categoryId: uc.categoryId,
+            userWords: { none: { userId } },
+          },
+        })
+        if (newWords.length > 0) {
+          await prisma.userWord.createMany({
+            data: newWords.map((w) => ({ userId, wordId: w.id })),
+            skipDuplicates: true,
+          })
+        }
       }
     }
   }

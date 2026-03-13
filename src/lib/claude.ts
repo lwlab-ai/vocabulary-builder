@@ -11,10 +11,18 @@ export type GeneratedWord = {
   exampleUsage: string
 }
 
+// Cap the exclusion list to avoid token bloat; DB skipDuplicates handles the rest
+const MAX_EXISTING_WORDS_IN_PROMPT = 100
+
 function buildPrompt(categoryName: string, existingWords: string[]): string {
+  const wordSample =
+    existingWords.length > MAX_EXISTING_WORDS_IN_PROMPT
+      ? existingWords.slice(-MAX_EXISTING_WORDS_IN_PROMPT)
+      : existingWords
+
   return `You are a vocabulary expert. Generate exactly 20 advanced/professional vocabulary words for the category: "${categoryName}".
 
-${existingWords.length > 0 ? `Do NOT include any of these words that have already been generated: ${existingWords.join(", ")}` : ""}
+${wordSample.length > 0 ? `Do NOT include any of these words that have already been generated: ${wordSample.join(", ")}` : ""}
 
 For each word, provide:
 1. The word itself
