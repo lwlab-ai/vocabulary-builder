@@ -18,6 +18,9 @@ export default function Nav() {
           <Link href="/categories" className="text-neutral-600 hover:text-neutral-900 transition-colors">
             Categories
           </Link>
+          <Link href="/dashboard/settings" className="text-neutral-600 hover:text-neutral-900 transition-colors">
+            Settings
+          </Link>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="text-neutral-500 hover:text-neutral-900 transition-colors"
