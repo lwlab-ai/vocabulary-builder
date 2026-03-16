@@ -106,7 +106,7 @@ export default function DashboardPage() {
             Start by adding some categories to build your word pool.
           </p>
           <Link
-            href="/dashboard/categories"
+            href="/categories"
             className="inline-block px-6 py-2 rounded-full bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors"
           >
             Add Categories

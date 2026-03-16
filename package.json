@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-vapid-keys": "node scripts/generate-vapid-keys.js"
+    "generate-vapid-keys": "node scripts/generate-vapid-keys.js",
+    "seed-words": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seed-words.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -32,6 +33,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/web-push": "^3.6.4",
+    "dotenv": "^17.3.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
     "postcss": "^8",

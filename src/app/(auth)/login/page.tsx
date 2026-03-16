@@ -4,6 +4,7 @@ import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Logo from "@/components/Logo"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -32,10 +33,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center text-neutral-900 mb-6">
-          Vocabulary Builder
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <Logo />
+        <form onSubmit={handleSubmit} className="space-y-4 text-black">
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1" htmlFor="email">
               Email

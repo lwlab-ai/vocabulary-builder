@@ -4,7 +4,7 @@ export async function registerAndSubscribe(vapidPublicKey: string): Promise<Push
 
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey).buffer as BufferSource
   })
 
   return subscription

@@ -16,11 +16,13 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null)
+  const [isPushSupported, setIsPushSupported] = useState(true)
 
-  const isPushSupported =
-    typeof window !== "undefined" &&
-    "serviceWorker" in navigator &&
-    "PushManager" in window
+  useEffect(() => {
+    setIsPushSupported(
+      "serviceWorker" in navigator && "PushManager" in window
+    )
+  }, [])
 
   useEffect(() => {
     fetch("/api/notifications/preference")
@@ -78,8 +80,8 @@ export default function SettingsPage() {
         text: pref === "OFF" ? "Notifications disabled" : `${PREF_LABELS[pref]} notifications enabled`,
         type: "success",
       })
-    } catch (err: any) {
-      setMessage({ text: err.message ?? "Something went wrong", type: "error" })
+    } catch (err) {
+      setMessage({ text: err instanceof Error ? err.message : "Something went wrong", type: "error" })
     } finally {
       setSaving(false)
     }

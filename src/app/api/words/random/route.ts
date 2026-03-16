@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { getRandomUnseen } from "@/lib/user-word"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -10,26 +10,7 @@ export async function GET() {
   }
 
   const userId = session.user.id
-
-  // Find a random unseen word from the user's selected categories
-  const unseenWord = await prisma.userWord.findFirst({
-    where: {
-      userId,
-      seen: false,
-    },
-    include: {
-      word: {
-        include: {
-          category: true,
-        },
-      },
-    },
-    orderBy: {
-      // Random-ish ordering using id
-      id: "asc",
-    },
-    skip: await getRandomSkip(userId),
-  })
+  const unseenWord = await getRandomUnseen(userId)
 
   if (!unseenWord) {
     return NextResponse.json({ error: "No words available" }, { status: 404 })
@@ -45,12 +26,4 @@ export async function GET() {
     categoryName: unseenWord.word.category.name,
     seen: unseenWord.seen,
   })
-}
-
-async function getRandomSkip(userId: string): Promise<number> {
-  const count = await prisma.userWord.count({
-    where: { userId, seen: false },
-  })
-  if (count <= 1) return 0
-  return Math.floor(Math.random() * count)
 }

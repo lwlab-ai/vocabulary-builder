@@ -3,8 +3,8 @@ self.addEventListener('push', function(event) {
   const title = data.title || 'Vocabulary Builder'
   const options = {
     body: data.body || 'Time to learn a new word!',
-    icon: '/icon.svg',
-    badge: '/icon.svg',
+    icon: '/capy.png',
+    badge: '/capy.png',
     data: {
       url: data.url || '/dashboard'
     },
