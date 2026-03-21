@@ -12,13 +12,13 @@ export type GeneratedWord = {
 }
 
 function buildPrompt(categoryName: string, size: number = 20): string {
-  return `You are a vocabulary expert. Generate exactly ${size} advanced/professional vocabulary words for the category: "${categoryName}". Your audience is somebody who wants to be professional in the ${categoryName} field.
+  return `You are a vocabulary expert. Generate exactly ${size} graduate-level or above vocabulary words for the category: "${categoryName}". Your audience is highly educated professionals and graduate students who already have a strong command of everyday English. Avoid common or intermediate words — every word should be the kind found in academic journals, professional discourse, or graduate-level textbooks.
 
 For each word, provide:
-1. The word itself
+1. The word itself (must be graduate-level complexity or higher — words that would challenge an educated adult)
 2. A clear, concise definition (1-2 sentences)
 3. Phonetic pronunciation (e.g., /prəˌnʌnsiˈeɪʃən/)
-4. An example usage in a realistic sentence or short paragraph (1-3 sentences)
+4. An example usage in a realistic professional or academic sentence (1-3 sentences)
 
 Return ONLY a valid JSON array with exactly ${size} objects, each having keys: "word", "definition", "pronunciation", "exampleUsage". No markdown, no extra text.`
 }

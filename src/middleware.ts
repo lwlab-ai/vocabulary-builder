@@ -9,6 +9,9 @@ export default withAuth(
     callbacks: {
       authorized: ({ token }) => !!token,
     },
+    pages: {
+      signIn: "/login",
+    },
   }
 )
 
@@ -18,5 +21,6 @@ export const config = {
     "/api/categories/:path*",
     "/api/words/:path*",
     "/api/notifications/:path*",
+    "/api/invites/:path*",
   ],
 }

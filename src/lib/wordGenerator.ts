@@ -54,7 +54,15 @@ export async function assignNextWord(userId: string): Promise<void> {
   const userCategories = await prisma.userCategory.findMany({ where: { userId } })
   if (userCategories.length === 0) return
 
-  const categoryIds = userCategories.map((uc) => uc.categoryId)
+  let categoryIds = userCategories.map((uc) => uc.categoryId)
+  const lastSeenWord = await prisma.userWord.findFirst({
+    where: { userId, seen: true },
+    orderBy: { seenAt: 'desc' },
+    include: { word: { select: { categoryId: true } } },
+  })
+  if (lastSeenWord && categoryIds.length > 1) {
+    categoryIds = categoryIds.filter((id) => id !== lastSeenWord.word.categoryId)
+  }
 
   // Try to find an unlinked pool word across ALL user categories
   const unlinkedWord = await prisma.word.findFirst({

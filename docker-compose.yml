@@ -2,7 +2,7 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - DATABASE_URL=file:./dev.db
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
@@ -11,21 +11,6 @@ services:
       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
       - VAPID_SUBJECT=${VAPID_SUBJECT}
-      - ALLOWED_EMAILS=${ALLOWED_EMAILS}
     volumes:
       - ./prisma:/app/prisma
-    restart: unless-stopped
-
-  studio:
-    image: node:20-alpine
-    working_dir: /app
-    ports:
-      - "5555:5555"
-    environment:
-      - DATABASE_URL=file:./dev.db
-    volumes:
-      - ./prisma:/app/prisma
-      - ./package.json:/app/package.json
-      - ./package-lock.json:/app/package-lock.json
-    command: sh -c "apk add --no-cache openssl && npm install prisma @prisma/client && npx prisma generate && npx prisma studio --port 5555 --hostname 0.0.0.0"
     restart: unless-stopped

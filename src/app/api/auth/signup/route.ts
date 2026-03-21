@@ -10,27 +10,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid email format" }, { status: 400 })
     }
 
-    const allowedEmails = process.env.ALLOWED_EMAILS
-    if (allowedEmails) {
-      const allowList = allowedEmails.split(",").map((e) => e.trim().toLowerCase())
-      if (!allowList.includes(email.toLowerCase())) {
-        return NextResponse.json({ error: "🙇🏻‍♀️ Sorry! you are not on the invite list. Please contact me at daisyhuang1993@gmail.com to get access." }, { status: 403 })
-      }
+    const invite = await prisma.invite.findUnique({
+      where: { email: email.toLowerCase() },
+    })
+    if (!invite) {
+      return NextResponse.json(
+        { error: "You are not on the invite list. Ask an existing member to invite you." },
+        { status: 403 },
+      )
     }
     if (!password || password.length < 6) {
       return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 })
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } })
+    const normalizedEmail = email.toLowerCase()
+
+    const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } })
     if (existing) {
       return NextResponse.json({ error: "User already exists" }, { status: 409 })
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
-    const user = await prisma.user.create({
-      data: { email, passwordHash },
-      select: { id: true, email: true },
-    })
+    const [user] = await prisma.$transaction([
+      prisma.user.create({
+        data: { email: normalizedEmail, passwordHash, invitedBy: invite.invitedBy },
+        select: { id: true, email: true },
+      }),
+      prisma.invite.delete({ where: { id: invite.id } }),
+    ])
 
     return NextResponse.json(user, { status: 201 })
   } catch (error) {

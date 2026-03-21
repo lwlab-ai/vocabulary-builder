@@ -3,9 +3,9 @@ import Image from "next/image"
 
 export default function Logo({ variant = "md" }: { variant?: "md" | "sm" }) {
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-0 sm:gap-2 justify-center">
             <Image src="/capy.png" alt="Logo" width={variant === "md" ? 100 : 50} height={variant === "md" ? 100 : 50} className="rounded-full overflow-hidden" />
-            <h1 className={`text-${variant === "md" ? "2xl" : "xl"} font-bold text-center text-neutral-900`}>
+            <h1 className={`md:text-${variant === "md" ? "2xl" : "xl"} font-bold text-center text-neutral-900 text-8`}>
                 Vocabulary Builder
             </h1>
         </div>

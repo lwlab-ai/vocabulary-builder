@@ -16,9 +16,19 @@ model User {
   passwordHash     String
   notificationPref String         @default("OFF")
   pushSubscription String?
+  invitedBy        String?
   createdAt        DateTime       @default(now())
   userCategories   UserCategory[]
   userWords        UserWord[]
+  invites          Invite[]
+}
+
+model Invite {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  invitedBy String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [invitedBy], references: [id])
 }
 
 model Category {
