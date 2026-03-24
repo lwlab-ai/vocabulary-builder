@@ -7,8 +7,8 @@ services:
       - "traefik.http.routers.vocab.tls.certresolver=cloudflare"
       - "traefik.http.services.vocab.loadbalancer.server.port=3000"
     networks:
-      - traefik
+      - proxy
 
 networks:
-  traefik:
+  proxy:
     external: true
