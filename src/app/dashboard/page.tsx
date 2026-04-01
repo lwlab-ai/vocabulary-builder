@@ -67,6 +67,34 @@ export default function DashboardPage() {
     }
   }, [currentWord, fetchRandomWord, isLoading, isShuffling])
 
+  const handleAlreadyKnew = useCallback(async () => {
+    if (isShuffling || isLoading) return
+
+    setIsShuffling(true)
+
+    // Fade out
+    setVisible(false)
+
+    try {
+      // Mark current word as known (and seen)
+      if (currentWord) {
+        await fetch(`/api/words/${currentWord.id}/known`, { method: "PATCH" })
+      }
+
+      // Small delay for fade animation
+      await new Promise((resolve) => setTimeout(resolve, 200))
+
+      const next = await fetchRandomWord()
+      setCurrentWord(next)
+      setError(null)
+    } catch {
+      setError("Something went wrong. Please try again.")
+    } finally {
+      setIsShuffling(false)
+      setVisible(true)
+    }
+  }, [currentWord, fetchRandomWord, isLoading, isShuffling])
+
   // Keyboard shortcut: Space or Right Arrow
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -128,9 +156,18 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Shuffle button */}
-          <div className="mt-8 flex flex-col items-center gap-2">
-            <ShuffleButton onClick={handleShuffle} isLoading={isShuffling} />
+          {/* Action buttons */}
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <div className="flex items-center gap-3">
+              <ShuffleButton onClick={handleShuffle} isLoading={isShuffling} />
+              <button
+                onClick={handleAlreadyKnew}
+                disabled={isShuffling || isLoading}
+                className="px-5 py-2.5 rounded-full border border-emerald-500 text-emerald-600 font-medium text-sm hover:bg-emerald-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Already Knew
+              </button>
+            </div>
             <p className="text-xs text-neutral-400">or press Space / →</p>
           </div>
         </>

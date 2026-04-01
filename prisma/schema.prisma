@@ -70,6 +70,7 @@ model UserWord {
   wordId Int
   seen   Boolean   @default(false)
   seenAt DateTime?
+  known  Boolean   @default(false)
   user   User      @relation(fields: [userId], references: [id])
   word   Word      @relation(fields: [wordId], references: [id])
 
